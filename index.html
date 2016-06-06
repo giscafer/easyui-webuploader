@@ -1,0 +1,34 @@
+
+	
+	<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Document</title>
+		<link rel="stylesheet" type="text/css" href="public/rebox/jquery-rebox.css"/>
+		<link rel="stylesheet" type="text/css" href="public/webuploader/css/webuploader.css"/>
+		<link rel="stylesheet" type="text/css" href="public/webuploader/css/upload.css"/>
+		<link rel="stylesheet" type="text/css" href="public/easyui/v1.4/themes/metro/easyui.css">
+
+		<!-- webuploader -->
+		<script src="public/jquery/jquery-1.7.2.min.js"></script>
+		<script src="public/webuploader/webuploader.js"></script>
+		<script src="public/rebox/jquery-rebox.js"></script>
+		<script src="public/easyui/v1.4/jquery.easyui.min.js"></script>
+		<script src="public/easyui/v1.4/easyui-lang-zh_CN.js"></script>
+		<script src="public/FileUploader.js"></script>
+	</head>
+	<body>
+		<div style="margin:0 auto;">
+			<button id="uploadBtn">图片上传</button>
+		</div>
+	</body>
+	</html>
+	<script>
+	fileUploader.init({
+		selector:'#uploadBtn',
+		fileNumLimit:20
+	});
+	</script>
+	
+	
