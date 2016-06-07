@@ -3,7 +3,9 @@
 
 - angular指令版本 —— [angular-webuploader](https://github.com/giscafer/angular-webuploader)
 
+## Usage
 
+本项目非工程，但是各前后端的代码都具备了，`src`目录下是java基于spring的后台实现代码；主要就是一个图片上传和数据库保存操作，相对简单。
 
 ## License
 
