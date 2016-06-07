@@ -663,7 +663,7 @@
             $('#' + file.id).find('p.state').text('已上传');
             if (response.status) {
                 var fileInfo = response.newName + ":" + file.name;
-                _addFileListItem(fileInfo);
+//                _addFileListItem(fileInfo);
             }
         });
         //上传失败
@@ -673,8 +673,8 @@
         });
         //上传完成
         uploader.on('uploadFinished', function() {
-            initPicPager();
-            reboxPreview();
+//            initPicPager();
+//            reboxPreview();
             console.log('上传完成');
         });
 
