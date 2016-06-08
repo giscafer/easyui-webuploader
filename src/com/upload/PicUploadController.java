@@ -2,6 +2,9 @@ package com.upload;
 
 /**
  * 图片上传控制类
+ * @author giscafer
+ * @date 2016-6-7 上午11:48:48
+ * @version V1.0
  */
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

@@ -21,7 +21,7 @@ public class DocumentDao {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
-	private static final String tableName = "fs_form_document";
+	private static final String tableName = "gc_form_document";
 	private String insertSql = "insert into " + tableName
 			+ "(D_UPSIZE,S_NAME,S_UPTIME,S_TYPE,S_UPIP,S_UPUSER,S_URL,S_LPATH,S_PLPATH,S_THUMBNAIL) values(?,?,?,?,?,?,?,?,?,?)";
 
