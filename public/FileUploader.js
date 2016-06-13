@@ -14,15 +14,26 @@
 	}
 	
 })('fileUploader',function(){
-	var _winEl=null;
+	var _winEl=null,$listEl,$previewEl,$page_arr,
+    fileList = [],errors = [],fileInfoArr = [],imgStyleHtml = '';
 	/**
 	 * 默认属性
 	 */
 	var defaultOptions={
 		fileNumLimit:20,
-		filesizelimit:100,
-		filesinglesizelimit:10
-	}
+		fileSizeLimit:200 * 1024 * 1024, //200M
+        fileSingleSizeLimit:50 * 1024 * 1024,// 50M
+        btnLabel:'图片上传',
+		downloadUrl:'/picture/download.do',
+        picWidth:80
+	};
+    //图片翻页属性
+    var pageOptions = {
+        currentPage: 0,
+        pageSize: 5,
+        initPageFlag: true
+    };
+
 	var FileUploader=function(){};
 	/**
 	 * 合并对象
@@ -49,17 +60,53 @@
 		this.opt=FileUploader.merge(defaultOptions,options);
 		var selector=this.opt.selector;
 		
-		var html = '<div></div>';
-	    var el = document.createElement("div");
-	    el.className = "zs-picupload";
-	    el.innerHTML = html;
-	    _winEl = el.firstChild;
-	    $('body').append(el);
-		var $btn=$(selector);
-		$btn.unbind('click').bind('click',function() {
-	        $(_winEl).window('open');
-	    });
-		
+        var pageOptions = {
+                currentPage: 0,
+                pageSize: 5,
+                initPageFlag: true
+            };
+        //template
+        imgStyleHtml = ' style="width:' + this.opt.picWidth + 'px;heigth:' + this.opt.picWidth + 'px;"';
+        var uploadHtml = '',
+            listHtml = '';
+        uploadHtml = '<div class="fore-sys-file-btn">' + '<button type="button"' +
+            ' class="fore-sys-pic-up-btn" value="">' + this.opt.btnLabel + '</button>' + '</div>';
+        listHtml = '<div class="preview" style="display:none;">' +
+            '<i class="arr left ps_prev" style="display:none;"></i>' +
+            '<div class="contain">' +
+            '<ul class="list picture_list">' +
+            '</ul>' +
+            '</div>' +
+            '<i class="arr right ps_next" style="display:none;"></i>' +
+            '</div>';
+       
+        var html = '<div></div>' + uploadHtml + listHtml;
+        
+        var el = document.createElement("div");
+        el.className = "zs-picupload";
+        el.innerHTML = html;
+        _winEl = el.firstChild;
+        var _upLoadEl = _winEl.firstChild;
+        var _btnEl = _winEl.nextSibling.lastChild;
+        $('body').append(el);
+        $listEl = $(el).find('ul.picture_list');
+        var _valueEl = $listEl[0];
+        $previewEl = $(el).find('div.preview');
+        $page_arr = $previewEl.find('.arr');
+        $(_btnEl).click(function() {
+            $(_winEl).window('open');
+        });
+        var  mouseenterCss = {"display":"block"};
+        //删除按钮
+        $listEl.on("mouseenter", "li", function() {
+            $(this).find("span.del").css(mouseenterCss);
+        }).on("mouseleave", "li", function() {
+            $(this).find("span.del").css({ "display": "none" });
+        }).on('click', 'span.del', function() {
+            //绑定删除事件
+            _onDelFile(this);
+        });
+
 		$(_winEl).window({
 	           title: this.opt.title || '上传图片',
 	           minimizable: false,
@@ -73,13 +120,51 @@
 	           onOpen: _init
 	    });
 		
-	}
+
+	};
 
 	function _init() {
  	   $('.webuploader').remove();
         $(_winEl).html(buildPopFormHtml());
         init_uploader();
     }
+
+        function _addFileListItem(fileInfo) {
+            if (!fileInfo) return;
+            fileInfoArr = fileInfo.split(":");
+            var url = fileInfoArr[0];
+            var pos = url.lastIndexOf('/');
+            var thumbUrl = url.substring(0, pos) + '/thumb' + url.substring(pos)
+            var name = fileInfoArr[1];
+            fileList.push(fileInfo);
+            var _index = fileList.indexOf(fileInfo);
+            var _downloadUrl = defaultOptions.downloadUrl + "?filePath=" + url.replace(baseRootPath + "/", "") + "&fileName=" + encodeURIComponent(name);
+            var liHtml = '';
+        
+            var xel = '',$fileLi='';
+            // if (!readonly  || readonly=='false') {
+                xel = '<span class="del"  picIndex="' + _index + '" style="display:none;" title="删除"></span>';
+            // }
+            // if (viewType === 'list') {
+              $fileLi = $('<li><a href="' + location.origin + url + '" target="_blank" title="' + name + '"><img ' + imgStyleHtml + ' src="' + location.origin + thumbUrl + '" alt="' + name + '"/></a>' + xel + '</li>').appendTo($listEl);
+            // }
+            $previewEl.show();
+            // $fileLi = $compile($fileLi)(scope);
+            // _rebuildValue();
+        }
+        //删除图片
+        function _onDelFile(target) {
+            $.messager.confirm('确认操作', '确定要删除这个图片吗？', function(action) {
+                if (action) {
+                    var $fileLi = $(target).closest('li').hide();
+                    var picIndex = $(target).attr('picIndex');
+                    $fileLi.remove();
+                    //从列表中删除
+                    fileList.splice(picIndex, 1);
+                    // _rebuildValue();
+                }
+            });
+        }
 	 /**
      * 图片上传弹窗
      */
@@ -587,8 +672,8 @@
                 case 'finish':
                     stats = uploader.getStats();
                     if (stats.successNum) {
-                        uploader.destroy();
-                        $(_winEl).window('close');
+                        // uploader.destroy();
+                        // $(_winEl).window('close');
                         //	    alert('上传成功');
                     } else {
                         // 没有成功的图片，重设
@@ -663,7 +748,7 @@
             $('#' + file.id).find('p.state').text('已上传');
             if (response.status) {
                 var fileInfo = response.newName + ":" + file.name;
-//                _addFileListItem(fileInfo);
+               _addFileListItem(fileInfo);
             }
         });
         //上传失败
@@ -673,7 +758,7 @@
         });
         //上传完成
         uploader.on('uploadFinished', function() {
-//            initPicPager();
+           initPicPager();
 //            reboxPreview();
             console.log('上传完成');
         });
@@ -704,6 +789,71 @@
         updateTotalProgress();
 
     }
+    /**
+     * 图片list翻页效果
+     * @returns
+     */
+    function initPicPager() {
+        var $ps_next = $previewEl.find('.ps_next'),
+            $ps_prev = $previewEl.find('.ps_prev'),
+            $ps_list = $listEl.find('li'),
+            total_images = $ps_list.length,
+            currentHovered = -1,
+            pageSize = pageOptions.pageSize,
+            _currentPage = pageOptions.currentPage ? pageOptions.currentPage : 1,
+            totalPage = Math.ceil(total_images / pageSize),
+            $currentImage = [];
+        if (total_images <= pageSize) { //图片个数少于翻页数，则隐藏
+            $page_arr.hide()
+            return;
+        }
+        $page_arr.show();
+        var showImage = function(len) {
+            len = len ? len : 0;
+            var idx = pageOptions.currentPage * pageSize + len;
+            var less = total_images - pageOptions.currentPage * pageSize;
+            if (len < 0) {
+                less = total_images - less;
+            }
+            var count = 0;
+            if (less > 0 && less >= pageSize) {
+                count = pageSize;
+            } else if (less > 0 && less < pageSize) {
+                count = less;
+            }
+            $currentImage = [];
+            while (count > 0) {
+                var $item = $ps_list.eq(idx);
+                $currentImage.push($item);
+                count--;
+                idx++;
+            }
     
+            $ps_list.hide();
+            $.each($currentImage, function(index, el) {
+                el.show();
+            });
+        };
+    
+        function nextImage() {
+            if (pageOptions.currentPage < totalPage - 1) {
+                pageOptions.currentPage++;
+                showImage(0);
+            }
+        }
+    
+        function prevImage() {
+            if (pageOptions.currentPage > 0) {
+                showImage(-4);
+                pageOptions.currentPage--;
+            }
+        }
+        $ps_next.unbind('click').bind('click', nextImage);
+        $ps_prev.unbind('click').bind('click', prevImage);
+            if (pageOptions.initPageFlag) {
+                showImage();
+                pageOptions.initPageFlag = false;
+            }
+        }
     return new FileUploader();
 });
