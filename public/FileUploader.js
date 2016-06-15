@@ -1,6 +1,9 @@
 /**
  * 封装图片上传控件
  * 依赖jQuery easyui
+ * @author giscafer
+ * @version 0.5
+ * https://github.com/giscafer/easyui-webuploader
  */
 !(function(name,definition){
 	var hasDefine= typeof define ==='funciton',
