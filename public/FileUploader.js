@@ -1,6 +1,9 @@
 /**
  * 封装图片上传控件
  * 依赖jQuery easyui
+ * @author giscafer
+ * @version 0.5
+ * https://github.com/giscafer/easyui-webuploader
  */
 !(function(name,definition){
 	var hasDefine= typeof define ==='funciton',
@@ -14,7 +17,7 @@
 	}
 	
 })('fileUploader',function(){
-	var _winEl=null,$listEl,$previewEl,$page_arr,
+	var _winEl=null,$listEl,$previewEl,$page_arr,$picPath,
     fileList = [],errors = [],fileInfoArr = [],imgStyleHtml = '';
 	/**
 	 * 默认属性
@@ -70,7 +73,8 @@
         var uploadHtml = '',
             listHtml = '';
         uploadHtml = '<div class="fore-sys-file-btn">' + '<button type="button"' +
-            ' class="fore-sys-pic-up-btn" value="">' + this.opt.btnLabel + '</button>' + '</div>';
+            ' class="fore-sys-pic-up-btn" value="">' + this.opt.btnLabel + '</button>' + '</div>'+
+            '<input style="display:none;" type="text" name="path" id="picPath"></input>';
         listHtml = '<div class="preview" style="display:none;">' +
             '<i class="arr left ps_prev" style="display:none;"></i>' +
             '<div class="contain">' +
@@ -88,8 +92,9 @@
         _winEl = el.firstChild;
         var _upLoadEl = _winEl.firstChild;
         var _btnEl = _winEl.nextSibling.lastChild;
-        $('body').append(el);
+        $(selector).parent().append(el);
         $listEl = $(el).find('ul.picture_list');
+        $picPath=$(el).find('#picPath');
         var _valueEl = $listEl[0];
         $previewEl = $(el).find('div.preview');
         $page_arr = $previewEl.find('.arr');
@@ -126,6 +131,7 @@
 	function _init() {
  	   $('.webuploader').remove();
         $(_winEl).html(buildPopFormHtml());
+        fileList=[];
         init_uploader();
     }
 
@@ -673,7 +679,7 @@
                     stats = uploader.getStats();
                     if (stats.successNum) {
                         // uploader.destroy();
-                        // $(_winEl).window('close');
+                         $(_winEl).window('close');
                         //	    alert('上传成功');
                     } else {
                         // 没有成功的图片，重设
@@ -759,7 +765,8 @@
         //上传完成
         uploader.on('uploadFinished', function() {
            initPicPager();
-//            reboxPreview();
+            reboxPreview();
+            $picPath.val(fileList.join('|'));
             console.log('上传完成');
         });
 
@@ -789,6 +796,21 @@
         updateTotalProgress();
 
     }
+    /**
+      * 预览图片
+      * @returns
+      */
+     function reboxPreview() {
+         //先销毁再初始化，避免对此执行弹窗多次
+         try {
+             $listEl.rebox('destroy');
+         } catch (e) {} finally {
+             $listEl.rebox({
+                 selector: 'a',
+                 zIndex: 10000, 
+             });
+         }
+     }
     /**
      * 图片list翻页效果
      * @returns
