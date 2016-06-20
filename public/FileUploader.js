@@ -2,7 +2,6 @@
  * 封装图片上传控件
  * 依赖jQuery easyui
  * @author giscafer
- * @version 0.5
  * https://github.com/giscafer/easyui-webuploader
  */
 !(function(name,definition){
@@ -17,7 +16,7 @@
 	}
 	
 })('fileUploader',function(){
-	var _winEl=null,$listEl,$previewEl,$page_arr,$picPath,
+	var _winEl=null,$listEl,$previewEl,$page_arr,$picPath,version = "0.5",
     fileList = [],errors = [],fileInfoArr = [],imgStyleHtml = '';
 	/**
 	 * 默认属性
